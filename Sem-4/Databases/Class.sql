@@ -1,0 +1,53 @@
+CREATE DATABASE DEMO;
+SHOW DATABASES;
+USE DEMO;
+CREATE TABLE Department (
+	dep_id INT,
+	dname VARCHAR(20) NOT NULL,
+	major_sub VARCHAR(20)
+);
+
+SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES
+WHERE TABLE_SCHEMA = 'DEMO';
+
+DESC Department;
+
+ALTER TABLE Department DROP major_sub;
+
+DESC Department;
+
+CREATE TABLE EMPLOYE (
+	emp_id INT,
+	Ename VARCHAR(20)
+);
+
+ALTER TABLE EMPLOYE ADD Hiring_Date DATE;
+
+DESC EMPLOYE;
+
+SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES
+WHERE TABLE_SCHEMA = 'DEMO';
+
+INSERT INTO EMPLOYE (emp_id, Ename) VALUES (01, "Junaid");
+
+SELECT * FROM EMPLOYE;
+
+UPDATE EMPLOYE SET HireDate = '2024-02-25' where Ename = "Ali";
+
+ALTER TABLE EMPLOYE DROP HIRING_DATE;
+
+ALTER TABLE EMPLOYE ADD HireDate DATE;
+
+DESC Department;
+
+ALTER TABLE Department ADD mgrID int;
+
+INSERT INTO DEPARTMENT VALUES (10, 'Administrator', 200),
+								(20, 'Marketing', 201),
+								(30, 'Shiping', 202),
+                                (40, 'IT', 203),
+                                (50, 'Executive', 204);
+
+Select * FROM DEPARTMENT;
+
+ALTER TABLE DEPARTMENT ADD dep_id  INT Primary key;

@@ -1,0 +1,74 @@
+---
+
+**QUESTION 1 (CLO-2, C2, PLO-2) [10 Marks]**  
+
+Compare the following set of processes, with the length of the CPU burst time given in milliseconds:
+
+| Process | Burst Time | Priority |
+|---------|------------|----------|
+| P1      | 2          | 2        |
+| P2      | 1          | 1        |
+| P3      | 8          | 4        |
+| P4      | 4          | 2        |
+| P5      | 5          | 3        |
+
+The processes are assumed to have arrived in the order P1, P2, P3, P4, P5, all at time 0.  
+
+Classify four Gantt charts that illustrate the execution of these processes using the following scheduling algorithms:  
+- FCFS  
+- SJF  
+- Non-preemptive priority (a larger priority number implies a higher priority)  
+- RR (Quantum = 2)
+
+Show turnaround time, waiting time, and average waiting time also.
+
+---
+
+**QUESTION 2 (CLO-2, C3, PLO-3) [10 Marks]**
+
+Demonstrate a scenario where two concurrent processes, P0 and P1, need to access a critical section of code. Implement Peterson's solution in pseudocode to ensure mutual exclusion and answer the following questions:  
+
+a) Outline the pseudocode implementation of Peterson's solution for mutual exclusion.  
+b) Illustrate how the solution ensures that only one process can enter the critical section at a time.  
+c) Summarize any potential limitations or drawbacks of Peterson's solution.  
+
+--- 
+
+**QUESTION 3 [CLO-3, C2, PLO-2] [10 Marks]**
+
+Construct the following snapshot of a system:
+
+|   | Allocation | Max Need |
+|---|------------|----------|
+| T0| 1 2 0 2    | 4 3 1 6  |
+| T1| 0 1 1 2    | 2 4 2 4  |
+| T2| 1 2 4 0    | 3 6 5 1  |
+| T3| 1 2 0 1    | 2 6 2 3  |
+| T4| 1 0 0 1    | 3 1 1 2  |
+
+Using the Banker's algorithm, identify whether or not each of the following states is unsafe. If the state is safe, select the order in which the threads may complete; otherwise, identify why the state is unsafe.
+
+a. Available = (2, 2, 2, 3)  
+b. Available = (4, 4, 1, 1)  
+c. Available = (3, 0, 1, 4)  
+d. Available = (1, 5, 2, 2)
+
+---
+
+**QUESTION 4 [CLO-3, C3, PLO-2] [20 Marks]**
+
+a) Make use of a logical address space of 256 pages with a 4-KB page size, mapped onto a memory of 64 frames. How many bits are required in the logical and physical address?
+
+b) Identify the cause of thrashing? How does the system plan to detect and eliminate thrashing?
+
+---
+
+**QUESTION 5 [CLO-3, C3, PLO-3] [20 Marks]**
+
+Select the purpose of the following directories along with diagrams:
+
+a. Tree-Structured Directories  
+b. Acyclic-Graph Directories  
+c. General Graph Directories  
+
+---
