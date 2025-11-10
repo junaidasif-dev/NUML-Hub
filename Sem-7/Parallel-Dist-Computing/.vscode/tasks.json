@@ -1,0 +1,50 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build (auto)",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-Command",
+        "if (Get-Command g++ -ErrorAction SilentlyContinue) { g++ \"${workspaceFolder}\\LabTak1.cpp\" -o \"${workspaceFolder}\\LabTak1.exe\" } elseif (Get-Command cl -ErrorAction SilentlyContinue) { pushd \"${workspaceFolder}\"; cl /nologo /EHsc \"LabTak1.cpp\" /Fe:\"${workspaceFolder}\\LabTak1.exe\"; popd } else { Write-Error 'No C++ compiler found. Install MSVC Build Tools or MSYS2 MinGW-w64.'; exit 1 }"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": ["$gcc", "$msCompile"]
+    },
+    {
+      "label": "Build with g++",
+      "type": "shell",
+      "command": "g++",
+      "args": [
+        "${workspaceFolder}\\LabTak1.cpp",
+        "-o",
+        "${workspaceFolder}\\LabTak1.exe"
+      ],
+      "group": "build",
+      "problemMatcher": ["$gcc"]
+    },
+    {
+      "label": "Build with cl",
+      "type": "shell",
+      "command": "cl",
+      "args": [
+        "/nologo",
+        "/EHsc",
+        "${workspaceFolder}\\LabTak1.cpp",
+        "/Fe:${workspaceFolder}\\LabTak1.exe"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "group": "build",
+      "problemMatcher": ["$msCompile"]
+    }
+  ]
+}

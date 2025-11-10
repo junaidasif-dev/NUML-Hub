@@ -1,0 +1,191 @@
+//#include<stdio.h>
+//#include<omp.h>
+//int main()
+//{
+//	int n = 100000;
+//	double sum = 0.0;
+//	double arr[100000];
+//	for (int i = 0; i < n; i++)
+//			arr[i] = i * 0.5;
+//	for (int i = 0; i < n; i++)
+//		sum += arr[i];
+//	printf("Sum = %f\n", sum);
+//	return 0;
+//}
+
+
+
+
+// paralyzing the code 
+
+//int main()
+//{
+//	int n = 100000;
+//	double sum = 0.0;
+//	double arr[100000];
+//
+//#pragma omp parallel
+//	{
+//#pragma omp sections
+//		{
+//#pragma omp section
+//			{
+//				for (int i = 0; i < n; i++)
+//					arr[i] = i * 0.5;
+//			}
+//
+//#pragma omp section
+//			{
+//				for (int i = 0; i < n; i++)
+//					sum += arr[i];
+//				
+//				printf("Sum calculated by thread %d: %f\n", omp_get_thread_num(), sum);
+//			}
+//		}
+//
+//	}
+//
+//
+//	printf("Sum = %f\n", sum);
+//	return 0;
+//}
+
+
+
+//#include<stdio.h>
+//#include<omp.h>
+//#include<math.h>
+//#define N 4
+//int main()
+//{
+//	double A[N][N] = {
+//		{1,2,3,4},
+//		{2,3,4,5},
+//		{3,4,5,6},
+//		{4,5,6,7}
+//	};
+//	for (int i = 0; i < N; i++)
+//	{
+//		double sum = 0.0;
+//		for (int j = 0; j < N; j++)
+//			sum += A[i][j] * A[i][j];
+//		printf("sum = %f\n", sum);
+//
+//
+//		double norm = sqrt(sum);
+//		for (int j = 0; j < N; j++)
+//			A[i][j] /= norm;
+//	}
+//	printf("Matrix normalized\n");
+//
+//	return 0;
+//}
+
+
+
+
+//#include<stdio.h>
+//#include<omp.h>
+//#include<math.h>
+//#define N 4
+//int main()
+//{
+//	double A[N][N] = {
+//		{1,2,3,4},
+//		{2,3,4,5},
+//		{3,4,5,6},
+//		{4,5,6,7}
+//	};
+//#pragma omp parallel for
+//	
+//
+//		for (int i = 0; i < N; i++)
+//		{
+//			int tid = omp_get_thread_num();
+//
+//			double sum = 0.0;
+//			for (int j = 0; j < N; j++)
+//				sum += A[i][j] * A[i][j];
+//			printf("Thread %d computed sum for row %d = %f\n",tid, i, sum);
+//
+//
+//			double norm = sqrt(sum);
+//
+//#pragma omp barrier
+//				for (int j = 0; j < N; j++)
+//					A[i][j] /= norm;
+//				printf("Thread %d normalized row %d\n ", tid, i);
+//
+//		}
+//
+//
+//
+//	printf("Matrix normalized\n");
+//	for (int i = 0; i < N; i++)
+//	{
+//		for (int j = 0; j < N; j++)
+//			printf("%f ", A[i][j]);
+//		printf("\n");
+//	}
+//
+//	return 0;
+//}
+
+
+
+//Task 3
+
+
+#include<stdio.h>
+#include<math.h>
+int main()
+{
+	int n = 1000;
+	int arr[1000];
+	for (int i = 0; i < n; i++)
+		arr[i] = 100 % 10000;
+	int max_val = arr[0];
+	for (int i = 1; i < n; i++)
+	{
+		if (arr[i] > max_val)
+			max_val = arr[i];
+	}
+		
+	printf("Maximum = %d\n", max_val);
+	return 0;
+
+}
+
+
+// paralyzed
+
+#include<stdio.h>
+#include<stdlib.h>
+#include<math.h>
+int main()
+{
+	int n = 1000;
+	int arr[1000];
+	for (int i = 0; i < n; i++)
+		arr[i] = rand() % 100000;
+
+	int max_val = arr[0];
+	printf("generated values: \n")
+#pragma omp parallel for lastprivate(max_val)
+
+	for (int i = 1; i < n; i++)
+	{
+		if (arr[i] > max_val)
+		{
+#pragma omp critical
+			{
+				if (arr[i] > max_val)
+					max_val = arr[i];
+			}
+		}
+	}
+
+	printf("Maximum = %d\n", max_val);
+	return 0;
+
+}
