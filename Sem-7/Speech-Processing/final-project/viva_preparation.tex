@@ -1,0 +1,911 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{setspace}
+\usepackage{titlesec}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{caption}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+% Page number bottom center
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+
+% Custom colors
+\definecolor{questioncolor}{RGB}{0, 51, 102}
+\definecolor{answercolor}{RGB}{0, 100, 0}
+
+% Custom commands for Q&A
+\newcommand{\vivaQ}[1]{\textcolor{questioncolor}{\textbf{Q: #1}}}
+\newcommand{\vivaA}[1]{\textcolor{answercolor}{\textbf{A:}} #1}
+
+\begin{document}
+
+% ----------------- Title Page -----------------
+\begin{titlepage}
+    \centering
+    {\Large \textbf{National University of Modern Languages, Islamabad}} \par
+    \vspace{2cm}
+    {\Huge \bfseries Viva Preparation Guide \par}
+    \vspace{1cm}
+    {\Large \textit{Real-Time Speech Recognition System} \par}
+    \vspace{0.5cm}
+    {\large \textit{Questions \& Answers for Oral Examination} \par}
+    \vspace{3cm}
+    {\large \textbf{Student:} Junaid Asif} \par
+    \vspace{0.3cm}
+    {\large \textbf{Roll No:} BSAI-144} \par
+    \vspace{0.3cm}
+    {\large \textbf{Course:} Speech Processing} \par
+    \vfill
+    {\large December 2025}
+\end{titlepage}
+
+\setstretch{1.3}
+
+\tableofcontents
+\newpage
+
+% =============================================================================
+\section{Project Overview Questions}
+% =============================================================================
+
+\vivaQ{What is the main objective of your project?}
+
+\vivaA{The main objective is to design and implement a Python-based system that can recognize spoken digits (zero to nine) in real-time from a live microphone audio stream, displaying the recognized command with minimal latency and confidence percentage.}
+
+\vspace{0.5cm}
+
+\vivaQ{Why did you choose Python instead of MATLAB?}
+
+\vivaA{Python was chosen because:
+\begin{itemize}
+    \item Free and open-source (no license required)
+    \item Rich ecosystem of libraries (TensorFlow, Librosa, NumPy)
+    \item Better deployment options for real-world applications
+    \item Larger community support for deep learning
+    \item Cross-platform compatibility
+\end{itemize}}
+
+\vspace{0.5cm}
+
+\vivaQ{What are the main components/modules of your system?}
+
+\vivaA{The system consists of five main modules:
+\begin{enumerate}
+    \item \textbf{config.py} - Configuration settings and parameters
+    \item \textbf{record\_dataset.py} - Audio recording and dataset creation
+    \item \textbf{feature\_extraction.py} - MFCC feature extraction
+    \item \textbf{train\_model.py} - CNN model training
+    \item \textbf{realtime\_recognition.py} - Live speech recognition
+\end{enumerate}}
+
+\vspace{0.5cm}
+
+\vivaQ{What is the workflow/pipeline of your system?}
+
+\vivaA{The pipeline is:
+\begin{enumerate}
+    \item Audio captured from microphone
+    \item Voice Activity Detection (VAD) checks for speech
+    \item MFCC features extracted from audio
+    \item Features normalized using z-score
+    \item CNN model performs classification
+    \item Predicted digit displayed with confidence score
+\end{enumerate}}
+
+% =============================================================================
+\section{Audio Processing Questions}
+% =============================================================================
+
+\vivaQ{What sampling rate did you use and why?}
+
+\vivaA{I used \textbf{16,000 Hz (16 kHz)} because:
+\begin{itemize}
+    \item Human speech contains frequencies up to ~8 kHz
+    \item By Nyquist theorem: $f_s \geq 2 \times f_{max}$, so 16 kHz captures all speech frequencies
+    \item It's a standard rate for speech recognition systems
+    \item Balances quality and computational efficiency
+\end{itemize}}
+
+\vspace{0.5cm}
+
+\vivaQ{What is the Nyquist theorem?}
+
+\vivaA{The Nyquist theorem states that to accurately reconstruct a signal, the sampling frequency must be at least twice the maximum frequency in the signal:
+\[f_s \geq 2 \times f_{max}\]
+For speech with maximum frequency of 8 kHz, we need at least 16 kHz sampling rate.}
+
+\vspace{0.5cm}
+
+\vivaQ{Why did you use mono audio instead of stereo?}
+
+\vivaA{Mono audio was used because:
+\begin{itemize}
+    \item Speech recognition doesn't benefit from stereo information
+    \item Reduces data size by half
+    \item Simplifies processing pipeline
+    \item Most microphones provide mono input anyway
+\end{itemize}}
+
+\vspace{0.5cm}
+
+\vivaQ{What is the duration of each audio sample?}
+
+\vivaA{Each audio sample is \textbf{1 second} long, which is sufficient for isolated digit utterances. This duration:
+\begin{itemize}
+    \item Captures complete digit pronunciation
+    \item Creates fixed-length inputs for the neural network
+    \item Provides consistent feature dimensions
+\end{itemize}}
+
+% =============================================================================
+\section{MFCC Questions (Most Important)}
+% =============================================================================
+
+\vivaQ{What is MFCC? Explain in detail.}
+
+\vivaA{MFCC stands for \textbf{Mel-Frequency Cepstral Coefficients}. They are features that represent the short-term power spectrum of sound in a way that mimics human auditory perception.
+
+MFCCs capture the shape of the vocal tract, which is responsible for creating different sounds. They are widely used in speech and audio processing because they:
+\begin{itemize}
+    \item Compress spectral information efficiently
+    \item Are robust to noise
+    \item Capture phonetically important characteristics
+\end{itemize}}
+
+\vspace{0.5cm}
+
+\vivaQ{Explain the complete MFCC extraction process step by step.}
+
+\vivaA{The MFCC extraction process involves 7 steps:
+
+\textbf{Step 1: Pre-emphasis}
+\begin{itemize}
+    \item Boosts high frequencies to balance the spectrum
+    \item Formula: $y[n] = x[n] - \alpha \cdot x[n-1]$, where $\alpha \approx 0.97$
+    \item Compensates for the natural roll-off in speech spectrum
+\end{itemize}
+
+\textbf{Step 2: Framing}
+\begin{itemize}
+    \item Divides signal into short overlapping frames (20-40ms)
+    \item Speech is quasi-stationary within short frames
+    \item Overlap prevents loss of information at boundaries
+\end{itemize}
+
+\textbf{Step 3: Windowing}
+\begin{itemize}
+    \item Applies Hamming window to each frame
+    \item Formula: $w[n] = 0.54 - 0.46 \cos\left(\frac{2\pi n}{N-1}\right)$
+    \item Reduces spectral leakage in FFT
+\end{itemize}
+
+\textbf{Step 4: FFT (Fast Fourier Transform)}
+\begin{itemize}
+    \item Converts time domain to frequency domain
+    \item Computes magnitude spectrum $|X[k]|$
+\end{itemize}
+
+\textbf{Step 5: Mel Filter Bank}
+\begin{itemize}
+    \item Applies triangular filters on mel scale
+    \item Mel scale: $m = 2595 \cdot \log_{10}(1 + f/700)$
+    \item Mimics human ear's frequency resolution
+\end{itemize}
+
+\textbf{Step 6: Log Compression}
+\begin{itemize}
+    \item Takes logarithm of filter bank energies
+    \item Mimics human loudness perception
+    \item Reduces dynamic range
+\end{itemize}
+
+\textbf{Step 7: DCT (Discrete Cosine Transform)}
+\begin{itemize}
+    \item Decorrelates the log filter bank energies
+    \item Produces final MFCC coefficients
+    \item Typically keep first 12-13 coefficients
+\end{itemize}}
+
+\vspace{0.5cm}
+
+\vivaQ{What is the Mel scale? Why is it used?}
+
+\vivaA{The Mel scale is a perceptual scale of pitches that mimics how humans perceive frequency differences.
+
+\textbf{Formula:}
+\[m = 2595 \cdot \log_{10}\left(1 + \frac{f}{700}\right)\]
+
+\textbf{Why it's used:}
+\begin{itemize}
+    \item Human ears are more sensitive to low frequencies than high frequencies
+    \item Equal intervals on mel scale sound equally spaced to humans
+    \item Below 1000 Hz: approximately linear
+    \item Above 1000 Hz: approximately logarithmic
+\end{itemize}
+
+\textbf{Example:}
+\begin{itemize}
+    \item 1000 Hz = 1000 mel
+    \item 2000 Hz $\approx$ 1500 mel (not 2000 mel)
+\end{itemize}}
+
+\vspace{0.5cm}
+
+\vivaQ{What is the difference between MFCC and Mel Spectrogram?}
+
+\vivaA{
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Mel Spectrogram} & \textbf{MFCC} \\
+\hline
+Output of mel filter bank & Output after DCT on mel spectrogram \\
+\hline
+Correlated features & Decorrelated features \\
+\hline
+Higher dimensionality & Lower dimensionality \\
+\hline
+2D representation & 1D coefficient vector per frame \\
+\hline
+Used in modern deep learning & Traditional speech recognition \\
+\hline
+\end{tabular}}
+
+\vspace{0.5cm}
+
+\vivaQ{Why do you use 13 MFCC coefficients?}
+
+\vivaA{13 coefficients are used because:
+\begin{itemize}
+    \item First 13 coefficients capture most vocal tract information
+    \item Higher coefficients represent fine spectral details (often noise)
+    \item Industry standard for speech recognition
+    \item Balance between information and dimensionality
+    \item The 0th coefficient represents frame energy (sometimes excluded)
+\end{itemize}}
+
+\vspace{0.5cm}
+
+\vivaQ{What are Delta and Delta-Delta coefficients?}
+
+\vivaA{\textbf{Delta coefficients} (also called velocity or differential coefficients) capture the rate of change of MFCCs over time - they represent \textit{how} the sound is changing.
+
+\textbf{Delta-Delta coefficients} (also called acceleration coefficients) capture the rate of change of delta coefficients - they represent the \textit{acceleration} of spectral changes.
+
+\textbf{Formula for Delta:}
+\[\Delta c_t = \frac{\sum_{n=1}^{N} n(c_{t+n} - c_{t-n})}{2\sum_{n=1}^{N} n^2}\]
+
+\textbf{Why they're important:}
+\begin{itemize}
+    \item Static MFCCs only capture instantaneous spectrum
+    \item Delta captures transitional information
+    \item Transitions between phonemes are important for recognition
+    \item Total features: 13 + 13 + 13 = 39 coefficients
+\end{itemize}}
+
+\vspace{0.5cm}
+
+\vivaQ{What is N\_FFT and HOP\_LENGTH?}
+
+\vivaA{\textbf{N\_FFT (512):}
+\begin{itemize}
+    \item FFT window size in samples
+    \item At 16 kHz: $512/16000 = 32$ ms window
+    \item Determines frequency resolution
+    \item Must be power of 2 for efficient FFT
+\end{itemize}
+
+\textbf{HOP\_LENGTH (160):}
+\begin{itemize}
+    \item Number of samples between consecutive frames
+    \item At 16 kHz: $160/16000 = 10$ ms hop
+    \item Controls time resolution and overlap
+    \item Overlap = N\_FFT - HOP\_LENGTH = 352 samples
+\end{itemize}
+
+\textbf{Trade-off:}
+\begin{itemize}
+    \item Larger N\_FFT $\rightarrow$ better frequency resolution, worse time resolution
+    \item Smaller HOP\_LENGTH $\rightarrow$ more frames, higher computation
+\end{itemize}}
+
+\vspace{0.5cm}
+
+\vivaQ{What is the shape of your feature matrix and why?}
+
+\vivaA{The feature shape is \textbf{(39, 101, 1)} where:
+\begin{itemize}
+    \item \textbf{39} = Number of features (13 MFCC + 13 Delta + 13 Delta-Delta)
+    \item \textbf{101} = Number of time frames = $\lceil 16000/160 \rceil + 1$
+    \item \textbf{1} = Single channel (like grayscale image)
+\end{itemize}
+
+This shape allows the CNN to process MFCC features as a 2D image where:
+\begin{itemize}
+    \item Height represents frequency/cepstral information
+    \item Width represents time progression
+\end{itemize}}
+
+% =============================================================================
+\section{Voice Activity Detection (VAD) Questions}
+% =============================================================================
+
+\vivaQ{What is Voice Activity Detection (VAD)?}
+
+\vivaA{VAD is a technique to determine whether an audio segment contains speech or just silence/noise. It acts as a gate that:
+\begin{itemize}
+    \item Prevents processing during silence
+    \item Reduces false positives
+    \item Saves computational resources
+    \item Improves system responsiveness
+\end{itemize}}
+
+\vspace{0.5cm}
+
+\vivaQ{What is RMS and how is it used for VAD?}
+
+\vivaA{RMS stands for \textbf{Root Mean Square}. It measures the average energy/loudness of an audio signal.
+
+\textbf{Formula:}
+\[RMS = \sqrt{\frac{1}{n}\sum_{i=1}^{n} x_i^2}\]
+
+\textbf{For VAD:}
+\begin{itemize}
+    \item If $RMS > threshold$ (0.01) $\rightarrow$ Speech detected
+    \item If $RMS < threshold$ $\rightarrow$ Silence, skip processing
+\end{itemize}
+
+\textbf{Why RMS instead of simple average:}
+\begin{itemize}
+    \item Audio signals oscillate around zero
+    \item Simple average would be near zero
+    \item Squaring makes all values positive
+    \item RMS gives meaningful energy measure
+\end{itemize}}
+
+\vspace{0.5cm}
+
+\vivaQ{What are other VAD methods?}
+
+\vivaA{Other VAD methods include:
+\begin{enumerate}
+    \item \textbf{Zero Crossing Rate (ZCR)} - Count sign changes in signal
+    \item \textbf{Spectral Entropy} - Measure spectral randomness
+    \item \textbf{Energy in specific frequency bands} - Focus on speech frequencies
+    \item \textbf{Machine Learning based} - Train classifier for speech/non-speech
+    \item \textbf{WebRTC VAD} - Google's robust VAD implementation
+\end{enumerate}}
+
+% =============================================================================
+\section{CNN Model Questions}
+% =============================================================================
+
+\vivaQ{Why did you choose CNN for this task?}
+
+\vivaA{CNN (Convolutional Neural Network) was chosen because:
+\begin{itemize}
+    \item MFCC features can be treated as 2D images
+    \item CNNs excel at learning spatial hierarchies
+    \item They capture local patterns (like phonemes)
+    \item Parameter sharing reduces model size
+    \item Translation invariance helps with timing variations
+    \item Proven effectiveness in audio classification
+\end{itemize}}
+
+\vspace{0.5cm}
+
+\vivaQ{Explain your CNN architecture.}
+
+\vivaA{My CNN has the following architecture:
+
+\textbf{4 Convolutional Blocks:}
+\begin{enumerate}
+    \item Conv2D(32 filters) $\rightarrow$ BatchNorm $\rightarrow$ ReLU $\rightarrow$ MaxPool $\rightarrow$ Dropout(0.25)
+    \item Conv2D(64 filters) $\rightarrow$ BatchNorm $\rightarrow$ ReLU $\rightarrow$ MaxPool $\rightarrow$ Dropout(0.25)
+    \item Conv2D(128 filters) $\rightarrow$ BatchNorm $\rightarrow$ ReLU $\rightarrow$ MaxPool $\rightarrow$ Dropout(0.25)
+    \item Conv2D(256 filters) $\rightarrow$ BatchNorm $\rightarrow$ ReLU
+\end{enumerate}
+
+\textbf{Classification Head:}
+\begin{enumerate}
+    \item Global Average Pooling
+    \item Dense(128) $\rightarrow$ BatchNorm $\rightarrow$ ReLU $\rightarrow$ Dropout(0.5)
+    \item Dense(64) $\rightarrow$ BatchNorm $\rightarrow$ ReLU $\rightarrow$ Dropout(0.5)
+    \item Dense(10) $\rightarrow$ Softmax
+\end{enumerate}
+
+Total parameters: ~430,000}
+
+\vspace{0.5cm}
+
+\vivaQ{What is the purpose of each layer type?}
+
+\vivaA{
+\textbf{Conv2D:}
+\begin{itemize}
+    \item Learns local patterns using learnable filters
+    \item Extracts features like edges, textures, phonemes
+\end{itemize}
+
+\textbf{BatchNormalization:}
+\begin{itemize}
+    \item Normalizes layer outputs
+    \item Speeds up training
+    \item Reduces internal covariate shift
+    \item Acts as regularization
+\end{itemize}
+
+\textbf{ReLU Activation:}
+\begin{itemize}
+    \item $f(x) = max(0, x)$
+    \item Introduces non-linearity
+    \item Solves vanishing gradient problem
+\end{itemize}
+
+\textbf{MaxPooling:}
+\begin{itemize}
+    \item Reduces spatial dimensions
+    \item Provides translation invariance
+    \item Reduces computation
+\end{itemize}
+
+\textbf{Dropout:}
+\begin{itemize}
+    \item Randomly zeros neurons during training
+    \item Prevents overfitting
+    \item Forces network to learn redundant representations
+\end{itemize}
+
+\textbf{GlobalAveragePooling:}
+\begin{itemize}
+    \item Averages each feature map to single value
+    \item Reduces parameters vs Flatten
+    \item More robust to spatial variations
+\end{itemize}
+
+\textbf{Dense:}
+\begin{itemize}
+    \item Fully connected layers
+    \item Combines features for final classification
+\end{itemize}
+
+\textbf{Softmax:}
+\begin{itemize}
+    \item Converts logits to probabilities
+    \item Outputs sum to 1
+    \item $\sigma(z_i) = \frac{e^{z_i}}{\sum_j e^{z_j}}$
+\end{itemize}}
+
+\vspace{0.5cm}
+
+\vivaQ{What loss function did you use and why?}
+
+\vivaA{I used \textbf{Sparse Categorical Cross-Entropy} because:
+\begin{itemize}
+    \item Multi-class classification problem (10 classes)
+    \item Labels are integers (0-9), not one-hot encoded
+    \item "Sparse" version is memory efficient
+\end{itemize}
+
+\textbf{Formula:}
+\[L = -\sum_{i} y_i \log(\hat{y}_i)\]
+
+For sparse version, only the true class contributes to loss.}
+
+\vspace{0.5cm}
+
+\vivaQ{What optimizer did you use?}
+
+\vivaA{I used \textbf{Adam optimizer} (Adaptive Moment Estimation) because:
+\begin{itemize}
+    \item Combines benefits of AdaGrad and RMSprop
+    \item Adaptive learning rates for each parameter
+    \item Works well with default hyperparameters
+    \item Efficient with sparse gradients
+    \item Learning rate: 0.001 (default)
+\end{itemize}}
+
+\vspace{0.5cm}
+
+\vivaQ{What callbacks did you use during training?}
+
+\vivaA{Three callbacks were used:
+
+\textbf{1. EarlyStopping:}
+\begin{itemize}
+    \item Monitors validation loss
+    \item Stops if no improvement for 10 epochs
+    \item Restores best weights
+    \item Prevents overfitting
+\end{itemize}
+
+\textbf{2. ReduceLROnPlateau:}
+\begin{itemize}
+    \item Reduces learning rate when stuck
+    \item Factor: 0.5 (halves LR)
+    \item Patience: 5 epochs
+    \item Helps escape local minima
+\end{itemize}
+
+\textbf{3. ModelCheckpoint:}
+\begin{itemize}
+    \item Saves best model based on validation accuracy
+    \item Ensures best model is preserved
+\end{itemize}}
+
+\vspace{0.5cm}
+
+\vivaQ{What is overfitting and how did you prevent it?}
+
+\vivaA{\textbf{Overfitting} occurs when a model learns the training data too well, including noise, and fails to generalize to new data.
+
+\textbf{Prevention techniques used:}
+\begin{enumerate}
+    \item \textbf{Dropout} (0.25 in conv layers, 0.5 in dense layers)
+    \item \textbf{Batch Normalization} - regularization effect
+    \item \textbf{Early Stopping} - stop before overfitting
+    \item \textbf{Data Augmentation} (recommended for improvement)
+    \item \textbf{Small model} relative to data size
+\end{enumerate}}
+
+% =============================================================================
+\section{Training Questions}
+% =============================================================================
+
+\vivaQ{How did you split your dataset?}
+
+\vivaA{I used an 80-20 split:
+\begin{itemize}
+    \item \textbf{Training set:} 80\% of data
+    \item \textbf{Test/Validation set:} 20\% of data
+\end{itemize}
+
+For small datasets (< 50 samples), stratified splitting was disabled to avoid errors. With 30 samples, I got 24 training and 6 test samples.}
+
+\vspace{0.5cm}
+
+\vivaQ{What is stratified splitting?}
+
+\vivaA{Stratified splitting ensures that each split has the same proportion of classes as the original dataset.
+
+\textbf{Example:} If dataset has 10\% of class A, both train and test sets will have ~10\% of class A.
+
+\textbf{Problem with small datasets:} With only 3 samples per class and 20\% test split, we can't ensure each class appears in test set.}
+
+\vspace{0.5cm}
+
+\vivaQ{What is normalization and why is it important?}
+
+\vivaA{Normalization scales features to a standard range.
+
+\textbf{Z-score normalization used:}
+\[X_{normalized} = \frac{X - \mu}{\sigma}\]
+
+\textbf{Why it's important:}
+\begin{itemize}
+    \item Neural networks work better with small input values
+    \item Prevents features with large values from dominating
+    \item Speeds up training convergence
+    \item Required for consistent inference (same params used)
+\end{itemize}}
+
+\vspace{0.5cm}
+
+\vivaQ{Why do you save normalization parameters?}
+
+\vivaA{Normalization parameters (mean and std) computed on training data must be saved because:
+\begin{itemize}
+    \item Same parameters must be used during inference
+    \item New audio must be normalized the same way
+    \item Different normalization would give wrong predictions
+    \item Ensures consistency between training and testing
+\end{itemize}}
+
+% =============================================================================
+\section{Real-Time Recognition Questions}
+% =============================================================================
+
+\vivaQ{How does real-time recognition work?}
+
+\vivaA{Real-time recognition uses a sliding buffer approach:
+
+\begin{enumerate}
+    \item \textbf{Audio Stream:} Continuous capture from microphone
+    \item \textbf{Circular Buffer:} Maintains last 1 second of audio
+    \item \textbf{Callback Function:} Called every 100ms with new audio
+    \item \textbf{Buffer Update:} Old samples shifted out, new samples added
+    \item \textbf{Processing Loop:} Every 100ms:
+    \begin{itemize}
+        \item Check VAD
+        \item Extract features
+        \item Run model inference
+        \item Display result if confident
+    \end{itemize}
+\end{enumerate}}
+
+\vspace{0.5cm}
+
+\vivaQ{What is the confidence threshold and why is it used?}
+
+\vivaA{The confidence threshold (0.6 or 60\%) is the minimum probability required to accept a prediction.
+
+\textbf{Purpose:}
+\begin{itemize}
+    \item Reduces false positives
+    \item Filters uncertain predictions
+    \item Only displays confident results
+\end{itemize}
+
+\textbf{Trade-off:}
+\begin{itemize}
+    \item Higher threshold $\rightarrow$ fewer false positives, might miss valid speech
+    \item Lower threshold $\rightarrow$ more detections, more errors
+\end{itemize}}
+
+\vspace{0.5cm}
+
+\vivaQ{What is the cooldown period?}
+
+\vivaA{The cooldown period (0.5 seconds) prevents repeated recognitions of the same utterance.
+
+\textbf{Problem without cooldown:}
+\begin{itemize}
+    \item Same word might be in buffer for multiple cycles
+    \item Would output "FIVE FIVE FIVE FIVE..."
+\end{itemize}
+
+\textbf{Solution:}
+\begin{itemize}
+    \item After recognition, wait 0.5 seconds before next output
+    \item Allows buffer to clear previous audio
+\end{itemize}}
+
+\vspace{0.5cm}
+
+\vivaQ{What is the latency of your system?}
+
+\vivaA{The system latency is approximately \textbf{100-150ms}, which includes:
+\begin{itemize}
+    \item Audio buffer filling: ~100ms (callback block size)
+    \item Feature extraction: ~10-20ms
+    \item Model inference: ~20-30ms
+    \item Display: negligible
+\end{itemize}
+
+This is well below human-perceptible delay (~200ms).}
+
+% =============================================================================
+\section{Technical Deep-Dive Questions}
+% =============================================================================
+
+\vivaQ{What is the Fourier Transform?}
+
+\vivaA{The Fourier Transform decomposes a signal into its constituent frequencies.
+
+\textbf{Continuous Fourier Transform:}
+\[X(f) = \int_{-\infty}^{\infty} x(t) e^{-j2\pi ft} dt\]
+
+\textbf{Discrete Fourier Transform (DFT):}
+\[X[k] = \sum_{n=0}^{N-1} x[n] e^{-j2\pi kn/N}\]
+
+\textbf{FFT (Fast Fourier Transform):}
+\begin{itemize}
+    \item Efficient algorithm for computing DFT
+    \item Complexity: $O(N \log N)$ instead of $O(N^2)$
+    \item Requires N to be power of 2
+\end{itemize}}
+
+\vspace{0.5cm}
+
+\vivaQ{What is the Hamming window and why is it used?}
+
+\vivaA{The Hamming window is applied to each frame before FFT.
+
+\textbf{Formula:}
+\[w[n] = 0.54 - 0.46 \cos\left(\frac{2\pi n}{N-1}\right)\]
+
+\textbf{Purpose:}
+\begin{itemize}
+    \item Reduces spectral leakage
+    \item Smooth transition at frame edges
+    \item Without windowing, abrupt edges cause artifacts
+\end{itemize}}
+
+\vspace{0.5cm}
+
+\vivaQ{What is the DCT and why is it used in MFCC?}
+
+\vivaA{DCT (Discrete Cosine Transform) converts the log mel spectrum to cepstral coefficients.
+
+\textbf{Purpose:}
+\begin{itemize}
+    \item Decorrelates the features
+    \item Compresses information into fewer coefficients
+    \item First few coefficients contain most energy
+    \item Similar to PCA effect
+\end{itemize}
+
+\textbf{Why DCT over FFT for this step:}
+\begin{itemize}
+    \item Input is real-valued (log energies)
+    \item DCT produces real output
+    \item Better energy compaction
+\end{itemize}}
+
+\vspace{0.5cm}
+
+\vivaQ{What is a Convolutional layer doing mathematically?}
+
+\vivaA{A convolutional layer performs the convolution operation:
+\[(f * g)[n] = \sum_{m} f[m] \cdot g[n-m]\]
+
+In 2D for images:
+\[y[i,j] = \sum_m \sum_n x[i+m, j+n] \cdot w[m,n] + b\]
+
+\textbf{Key concepts:}
+\begin{itemize}
+    \item \textbf{Kernel/Filter:} Small learnable weight matrix
+    \item \textbf{Stride:} Step size for sliding the kernel
+    \item \textbf{Padding:} Adding zeros to preserve dimensions
+    \item \textbf{Feature map:} Output of applying one filter
+\end{itemize}}
+
+% =============================================================================
+\section{Troubleshooting Questions}
+% =============================================================================
+
+\vivaQ{What was the stratified split error and how did you solve it?}
+
+\vivaA{\textbf{Error:} "test\_size = 6 should be greater or equal to number of classes = 10"
+
+\textbf{Cause:} With 30 samples and 20\% test split = 6 test samples. Stratified split needs at least 1 sample per class (10) in test set.
+
+\textbf{Solution:} Added conditional check:
+\begin{itemize}
+    \item If test samples < number of classes
+    \item Use simple random split instead of stratified
+\end{itemize}}
+
+\vspace{0.5cm}
+
+\vivaQ{How would you improve accuracy with more data?}
+
+\vivaA{With more data, I would:
+\begin{enumerate}
+    \item Record 20+ samples per digit
+    \item Use data augmentation (noise, pitch shift, time stretch)
+    \item Enable stratified splitting
+    \item Increase model complexity
+    \item Add cross-validation
+    \item Record from different environments
+    \item Include multiple speakers
+\end{enumerate}}
+
+% =============================================================================
+\section{Comparison and Alternative Questions}
+% =============================================================================
+
+\vivaQ{What are alternatives to MFCC?}
+
+\vivaA{Alternative features include:
+\begin{enumerate}
+    \item \textbf{Mel Spectrogram} - Raw mel-scaled spectrogram
+    \item \textbf{Filter Banks} - Before DCT step
+    \item \textbf{PLP} - Perceptual Linear Prediction
+    \item \textbf{Spectrograms} - Time-frequency representation
+    \item \textbf{Raw Waveform} - End-to-end learning
+    \item \textbf{Wav2Vec} - Self-supervised representations
+\end{enumerate}}
+
+\vspace{0.5cm}
+
+\vivaQ{What are alternatives to CNN?}
+
+\vivaA{Alternative models include:
+\begin{enumerate}
+    \item \textbf{RNN/LSTM} - Sequential processing
+    \item \textbf{GRU} - Simplified LSTM
+    \item \textbf{Transformer} - Attention-based
+    \item \textbf{CRNN} - CNN + RNN hybrid
+    \item \textbf{ResNet} - Residual connections
+    \item \textbf{HMM-GMM} - Traditional approach
+\end{enumerate}}
+
+\vspace{0.5cm}
+
+\vivaQ{How is your system different from commercial systems like Siri/Alexa?}
+
+\vivaA{
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Aspect} & \textbf{My System} & \textbf{Commercial} \\
+\hline
+Vocabulary & 10 digits & Unlimited \\
+\hline
+Model size & ~430K params & Billions \\
+\hline
+Training data & 30 samples & Millions of hours \\
+\hline
+Processing & Local & Cloud-based \\
+\hline
+Language model & None & Advanced LM \\
+\hline
+Noise handling & Basic VAD & Advanced DNNs \\
+\hline
+\end{tabular}}
+
+% =============================================================================
+\section{Quick Reference Formulas}
+% =============================================================================
+
+\textbf{Key Formulas to Remember:}
+
+\begin{enumerate}
+    \item \textbf{Mel Scale:} $m = 2595 \cdot \log_{10}(1 + f/700)$
+    
+    \item \textbf{RMS:} $RMS = \sqrt{\frac{1}{n}\sum_{i=1}^{n} x_i^2}$
+    
+    \item \textbf{Delta:} $\Delta c_t = \frac{\sum_{n=1}^{N} n(c_{t+n} - c_{t-n})}{2\sum_{n=1}^{N} n^2}$
+    
+    \item \textbf{Normalization:} $X_{norm} = \frac{X - \mu}{\sigma}$
+    
+    \item \textbf{Softmax:} $\sigma(z_i) = \frac{e^{z_i}}{\sum_j e^{z_j}}$
+    
+    \item \textbf{ReLU:} $f(x) = \max(0, x)$
+    
+    \item \textbf{Nyquist:} $f_s \geq 2 \times f_{max}$
+    
+    \item \textbf{Frame duration:} $T = \frac{N_{FFT}}{f_s}$ (512/16000 = 32ms)
+    
+    \item \textbf{Hop duration:} $T_{hop} = \frac{HOP}{f_s}$ (160/16000 = 10ms)
+\end{enumerate}
+
+% =============================================================================
+\section{Key Numbers to Remember}
+% =============================================================================
+
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Parameter} & \textbf{Value} \\
+\hline
+Sample Rate & 16,000 Hz \\
+\hline
+Duration & 1 second \\
+\hline
+N\_FFT & 512 samples (32ms) \\
+\hline
+HOP\_LENGTH & 160 samples (10ms) \\
+\hline
+N\_MFCC & 13 coefficients \\
+\hline
+Total Features & 39 (13 × 3) \\
+\hline
+Time Frames & 101 \\
+\hline
+Input Shape & (39, 101, 1) \\
+\hline
+Classes & 10 (digits 0-9) \\
+\hline
+Model Parameters & ~430,000 \\
+\hline
+Confidence Threshold & 60\% \\
+\hline
+VAD Threshold & 0.01 RMS \\
+\hline
+\end{tabular}
+
+\vspace{1cm}
+\begin{center}
+\textbf{Good Luck with Your Viva!}
+\end{center}
+
+\end{document}
