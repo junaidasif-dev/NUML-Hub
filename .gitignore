@@ -143,6 +143,9 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+# Custom virtual environment folders (e.g. rl_env, my_env, project-env)
+*_env/
+*-env/
 
 # Spyder project settings
 .spyderproject
